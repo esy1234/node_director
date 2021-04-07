@@ -1,10 +1,10 @@
 #include <node_director/node_director.h>
 #include <ros/ros.h>
-#include <image_transport/image_transport.h>
-#include <camera_info_manager/camera_info_manager.h>
+//#include <image_transport/image_transport.h>
+//#include <camera_info_manager/camera_info_manager.h>
 #include <sstream>
 #include <std_srvs/Empty.h>
-#include <libudev.h>
+//#include <libudev.h>
 #include <vector>
 #include <map>
 #include <utility>
