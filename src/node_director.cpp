@@ -205,6 +205,8 @@ bool NodeDirector::stopNode(std::shared_ptr<ManagedNode> node, int* result) {
     } else {
       printf("[NodeDirector] Killing child node %s\n", node_name.c_str());
     }
+
+    /*
     if (kill(node->pid, SIGINT) == 0) {
       nodes_.erase(node->pid);
       return true;
@@ -216,6 +218,45 @@ bool NodeDirector::stopNode(std::shared_ptr<ManagedNode> node, int* result) {
       }
       return false;
     }
+    */
+
+    int kill_count = 0;
+    do
+    {
+      if (kill_count < 2)
+      {
+        ros::Time start_time = ros::Time::now();
+        if (kill(node->pid, SIGINT) == 0)
+        {
+          while ((ros::Time::now() - start_time) < ros::Duration(5.0))
+          {
+            ros::Duration(0.1).sleep();
+            *result = waitpid(node->pid, &status, WNOHANG);
+            if (*result > 0)
+              break;
+          }
+        }
+      }
+      else
+      {
+        ros::Time start_time = ros::Time::now();
+        if (kill(node->pid, SIGKILL) == 0)
+        {
+          while ((ros::Time::now() - start_time) < ros::Duration(5.0))
+          {
+            ros::Duration(0.1).sleep();
+            *result = waitpid(node->pid, &status, WNOHANG);
+            if (*result > 0)
+              break;
+          }
+        }
+      }
+      kill_count++;
+      ROS_INFO("kill node count %d", kill_count);
+    } while (*result <= 0);
+    nodes_.erase(node->pid);
+    return true;
+
   } else if (*result == -1) {
     if (ros::ok()) {
       ROS_ERROR("Error checking child node %s: %s\n", node_name.c_str(), strerror(errno));
