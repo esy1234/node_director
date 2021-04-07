@@ -53,7 +53,9 @@ bool handle_list_nodes_request(node_director::ListNodesRequest& request, node_di
     info.executable_name = std::string(node.second->executable);
     info.args = std::vector<std::string>(node.second->args);
 
+    ROS_INFO("------------wait pid----------");
     int result = waitpid(node.first, &status, WNOHANG);
+    ROS_INFO("------------wait pid end----------");
     if (result == 0) {
       info.state = "Ok";
     } else if (result == -1) {
